@@ -1,5 +1,4 @@
 const ContactsRepository = require('../repositories/ContactsRepository');
-
 class ContactController {
     
     async index(request, response) {
