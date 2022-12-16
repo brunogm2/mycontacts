@@ -11,7 +11,7 @@ export default styled.input`
     outline: none;
     padding: 0 16px;
     font-size: 16px;
-    transition: border-color 0.2s ease-in;
+    transition: border-color 0.5s ease-in-out;
     appearance: none;
 
     &:focus {
