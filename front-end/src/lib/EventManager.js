@@ -1,30 +1,28 @@
 export default class EventManager {
     constructor() {
-        this.listeners = {
-
-        };
+        this.listeners = new Map();
     }
 
     on(event, listener) {
-        if (!this.listeners[event]) {
-            this.listeners[event] = [];
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
         }
 
-        this.listeners[event].push(listener);
+        this.listeners.get(event).push(listener);
     }
 
     emit(event, payload) {
-        if (!this.listeners[event]) {
+        if (!this.listeners.has(event)) {
             return;
         }
 
-        this.listeners[event].forEach((listener) => {
+        this.listeners.get(event).forEach((listener) => {
             listener(payload);
         });
     }
 
     removeListener(event, listenerToRemove) {
-        const listeners = this.listeners[event];
+        const listeners = this.listeners.get(event);
         
         if (!listeners) {
             return;
@@ -35,7 +33,7 @@ export default class EventManager {
             listener != listenerToRemove
         );
 
-        this.listeners[event] = filteredListeners;
+        this.listeners.set(event, filteredListeners);
     }
 }
 
