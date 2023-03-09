@@ -39,23 +39,6 @@ export default class EventManager {
 
 const toastEventManager = new EventManager();
 
-function addToast1(payload) {
-    console.log('Listener executou!', payload);
-}
-
-function addToast2(payload) {
-    console.log('Listener22 executou22!', payload);
-}
-
-
-toastEventManager.on('addtoast', addToast1);
-toastEventManager.on('addtoast', addToast2);
-
 toastEventManager.emit('addtoast', {type: 'danger', text: 'Texto!'})
 
-toastEventManager.removeListener('addtoast', addToast1);
-
 toastEventManager.emit('addtoast', 'depois de remover!...')
-
-
-console.log(toastEventManager);
