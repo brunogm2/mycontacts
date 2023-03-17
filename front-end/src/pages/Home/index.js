@@ -3,6 +3,10 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 
 import { Container, Header, ListHeader, Card, InputSearchContainer, ErrorContainer, EmptyListContainer, SearchNotFoundContainer } from "./styles";
 
+import Modal from "../../components/Modal";
+import Loader from "../../components/Loader";
+import Button from "../../components/Button";
+
 import arrow from '../../assets/images/icons/arrow.svg';
 import edit from '../../assets/images/icons/edit.svg';
 import trash from '../../assets/images/icons/trash.svg';
@@ -10,20 +14,19 @@ import sad from '../../assets/images/sad.svg';
 import emptyBox from '../../assets/images/empty-box.svg';
 import magnifier from '../../assets/images/magnifier-question.svg';
 
-import Modal from "../../components/Modal";
-import Loader from "../../components/Loader";
-
 import ContactsService from "../../services/ContactsService";
-import Button from "../../components/Button";
-import delay from "../../utils/delay";
+
+import toast from "../../utils/toast";
 
 export default function Home() {
-
     const [contacts, setContacts] = useState([]);
     const [orderBy, setOrderBy] = useState('asc');
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [contactBeingDeleted, setContactBeingDeleted] = useState(null);
+    const [isLoadingDelete, setIsLoadingDelete] = useState(false);
 
     const filteredContacts = useMemo(() => contacts.filter((contact) => (
         contact.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -60,19 +63,56 @@ export default function Home() {
         loadContacts();
     }
 
+    function handleDeleteContact(contact) {
+        setContactBeingDeleted(contact);
+        setIsDeleteModalVisible(true); 
+    }
+
+    function handleCloseDeleteContact() {
+        setIsDeleteModalVisible(false);
+        setContactBeingDeleted(null);
+    }
+
+    async function handleConfirmDeleteContact() {
+        try {
+            setIsLoadingDelete(true);
+
+            await ContactsService.deleteContact(contactBeingDeleted.id);
+
+            toast({
+                type: 'success',
+                text: 'Contato deletado com sucesso!'
+            });
+
+            handleCloseDeleteContact();
+
+            setContacts(prevState => prevState.filter(
+                (contact) => contact.id !== contactBeingDeleted.id
+            )); 
+        } catch {
+            toast({
+                type: 'danger',
+                text: 'Ocorreu um erro ao deletar um contato!'
+            });
+        } finally {
+            setIsLoadingDelete(false);
+        }
+    }
+
     return(
         <Container>
             <Loader isLoading={isLoading} />
             
             <Modal
-                danger 
-                title="Tem certeza que deseja remover o contato 'Bruno Gonçalves'?"
+                danger
+                visible={isDeleteModalVisible}
+                isLoading={isLoadingDelete}
+                title={`Tem certeza que deseja remover o contato "${contactBeingDeleted?.name}"?`}
                 confirmLabel="Deletar"
-                onCancel={() => alert('Cancelou!')}
-                onConfirm={() => alert('Coonfirmou!')}
+                onCancel={handleCloseDeleteContact}
+                onConfirm={handleConfirmDeleteContact}
             >
-                <h1>Boody Title</h1>
-                <p>Body p</p>
+                <p>Esta ação não poderá ser desfeita!</p>
             </Modal>
 
            {contacts.length > 0 && (
@@ -165,7 +205,10 @@ export default function Home() {
                                 <Link to={`/edit/${contact.id}`}>
                                     <img src={edit} alt="Edit" />
                                 </Link>
-                                <button type="button">
+                                <button 
+                                    type="button" 
+                                    onClick={() => handleDeleteContact(contact)}
+                                >
                                     <img src={trash} alt="Delete" />
                                 </button>
                             </div>
