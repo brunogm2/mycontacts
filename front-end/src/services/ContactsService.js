@@ -4,7 +4,7 @@ import HttpClient from "./utils/HttpClient";
 
 class ContactsService {
     constructor() {
-        this.HttpClient = new HttpClient('http://localhost:3001');
+        this.HttpClient = new HttpClient('http://localhost:3004');
     }
 
     async listContacts(orderBy = 'asc') {

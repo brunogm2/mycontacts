@@ -2,7 +2,7 @@ const ContactsRepository = require('../repositories/ContactsRepository');
 const isValidUUID = require('../utils/isValidUUID')
 
 class ContactController {
-    
+     
     async index(request, response) {
         const { orderBy } = request.query;
         const contacts = await ContactsRepository.findAll(orderBy);
